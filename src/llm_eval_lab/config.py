@@ -64,10 +64,18 @@ class Settings:
         ["http://localhost:5173", "http://127.0.0.1:5173"],
     )
 
+    _custom_db_path: Path | None = None
+
     @property
     def db_path(self) -> Path:
+        if self._custom_db_path is not None:
+            return self._custom_db_path
         self.data_dir.mkdir(parents=True, exist_ok=True)
         return self.data_dir / "eval_lab.db"
+
+    @db_path.setter
+    def db_path(self, val: Path | None) -> None:
+        self._custom_db_path = val
 
     @property
     def reports_dir(self) -> Path:
