@@ -90,9 +90,21 @@ class Storage:
         return conn
 
     def _init_db(self) -> None:
-        with self._connect() as conn:
+        conn = self._connect()
+        try:
             conn.executescript(_SCHEMA_SQL)
+            conn.commit()
+        finally:
+            conn.close()
         logger.debug("Database initialised at %s", self._db_path)
+
+    @contextmanager
+    def _read_conn(self) -> Generator[sqlite3.Connection, None, None]:
+        conn = self._connect()
+        try:
+            yield conn
+        finally:
+            conn.close()
 
     @contextmanager
     def _tx(self) -> Generator[sqlite3.Connection, None, None]:
