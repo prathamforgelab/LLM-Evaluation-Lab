@@ -65,6 +65,10 @@ class TestCase(BaseModel):
         return v
 
 
+# Prevent pytest from collecting TestCase as a test class
+TestCase.__test__ = False  # type: ignore[attr-defined]
+
+
 class DatasetInfo(BaseModel):
     """Metadata about a loaded dataset."""
 

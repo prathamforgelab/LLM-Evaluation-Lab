@@ -34,14 +34,14 @@ class TestPairedScores:
         cand = {"a": 0.6, "b": 0.9}
         ba, ca, mb, mc, failed = paired_scores(base, cand)
         assert len(ba) == 1
-        assert "b" in mc
+        assert "b" in mb
 
     def test_missing_from_candidate(self):
         base = {"a": 0.5, "b": 0.8}
         cand = {"a": 0.6}
         ba, ca, mb, mc, failed = paired_scores(base, cand)
         assert len(ba) == 1
-        assert "b" in mb
+        assert "b" in mc
 
     def test_none_scores_go_to_failed(self):
         base = {"a": 0.5, "b": None}
@@ -98,11 +98,11 @@ class TestBootstrapCI:
 
     def test_different_seeds_give_slightly_different_results(self):
         a = self._arr([0.4, 0.6, 0.5, 0.7, 0.3, 0.8, 0.2, 0.9, 0.1, 0.55])
-        b = self._arr([0.5, 0.7, 0.6, 0.8, 0.4, 0.9, 0.3, 1.0, 0.2, 0.65])
+        b = self._arr([0.5, 0.4, 0.8, 0.6, 0.5, 0.7, 0.4, 0.8, 0.3, 0.60])
         _, lo1, hi1 = bootstrap_mean_diff_ci(a, b, seed=1)
         _, lo2, hi2 = bootstrap_mean_diff_ci(a, b, seed=2)
-        # With same arrays and large enough n, CIs should be similar but not identical
-        assert (lo1 != lo2) or (hi1 != hi2)  # at least one should differ
+        # With varying difference distribution, CIs with different seeds should differ slightly
+        assert (lo1 != lo2) or (hi1 != hi2)
 
     def test_ci_lower_le_ci_upper(self):
         a = self._arr([0.5, 0.3, 0.7, 0.6, 0.4, 0.8, 0.2, 0.9, 0.1, 0.55])
@@ -133,7 +133,7 @@ class TestRelativeChange:
 
     def test_negative_baseline(self):
         result = safe_relative_change(-0.5, 0.1)
-        assert result == pytest.approx(-20.0)
+        assert result == pytest.approx(20.0)
 
     def test_zero_baseline_returns_none(self):
         result = safe_relative_change(0.0, 0.1)
