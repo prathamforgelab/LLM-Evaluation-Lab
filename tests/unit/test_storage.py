@@ -137,23 +137,20 @@ def test_save_and_load_comparison(storage: Storage):
         baseline_id="exp-base",
         candidate_id="exp-cand",
         overall_decision=RegressionDecision.IMPROVED,
-        recommendation="Deploy candidate",
-        metrics={
-            "exact_match": StatisticalComparison(
+        metric_comparisons=[
+            MetricComparison(
                 metric_name="exact_match",
                 baseline_mean=0.6,
                 candidate_mean=0.8,
-                absolute_difference=0.2,
-                relative_difference_pct=33.3,
-                ci_lower=0.1,
-                ci_upper=0.3,
-                confidence_level=0.95,
+                absolute_change=0.2,
+                relative_change_pct=33.3,
+                ci=ConfidenceInterval(lower=0.1, upper=0.3, level=0.95),
                 decision=RegressionDecision.IMPROVED,
                 n_paired=20,
             )
-        },
-        missing_from_baseline=[],
-        missing_from_candidate=[],
+        ],
+        cases_improved=["case-1"],
+        cases_regressed=[],
     )
 
     storage.save_comparison(report)
@@ -161,7 +158,8 @@ def test_save_and_load_comparison(storage: Storage):
     assert loaded is not None
     assert loaded.comparison_id == "comp-123"
     assert loaded.overall_decision == RegressionDecision.IMPROVED
-    assert loaded.metrics["exact_match"].absolute_difference == 0.2
+    assert len(loaded.metric_comparisons) == 1
+    assert loaded.metric_comparisons[0].absolute_change == 0.2
 
     # Listing comparisons
     comps = storage.list_comparisons()
