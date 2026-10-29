@@ -104,12 +104,13 @@ def validate(
 
 @app.command()
 def run(
-    dataset: Path = typer.Option(..., "--dataset", "-d", help="Path to JSONL dataset."),
+    dataset: Path = typer.Argument(..., help="Path to JSONL dataset."),
     provider: str = typer.Option("mock", "--provider", "-p", help="Provider name: mock | openai_compatible."),
     model: str = typer.Option("", "--model", "-m", help="Model identifier (optional for mock)."),
     name: str = typer.Option("experiment", "--name", "-n", help="Human-readable experiment name."),
     output_dir: Optional[Path] = typer.Option(None, "--output-dir", "-o", help="Directory to write reports."),
     format: str = typer.Option("markdown", "--format", "-f", help="Report format: markdown | json | csv."),
+    evaluators: Optional[str] = typer.Option(None, "--evaluators", help="Comma-separated evaluator names (e.g. exact_match,token_f1)."),
     exact_match: bool = typer.Option(True, "--exact-match/--no-exact-match"),
     token_f1: bool = typer.Option(True, "--token-f1/--no-token-f1"),
     json_valid: bool = typer.Option(False, "--json-validity/--no-json-validity"),
@@ -122,12 +123,24 @@ def run(
         raise typer.Exit(1)
 
     provider_cfg = ProviderConfig(name=provider, model=model)
-    eval_cfg = EvaluatorConfig(
-        exact_match=exact_match,
-        normalized_exact_match=True,
-        token_overlap_f1=token_f1,
-        json_validity=json_valid,
-    )
+    if evaluators:
+        ev_list = [e.strip() for e in evaluators.split(",") if e.strip()]
+        eval_cfg = EvaluatorConfig(
+            exact_match="exact_match" in ev_list,
+            normalized_exact_match="normalized_exact_match" in ev_list,
+            token_overlap_f1="token_overlap_f1" in ev_list or "token_f1" in ev_list,
+            json_validity="json_validity" in ev_list or "json_valid" in ev_list,
+            keyword_coverage="keyword_coverage" in ev_list,
+            semantic_similarity="semantic_similarity" in ev_list,
+            judge="judge" in ev_list,
+        )
+    else:
+        eval_cfg = EvaluatorConfig(
+            exact_match=exact_match,
+            normalized_exact_match=True,
+            token_overlap_f1=token_f1,
+            json_validity=json_valid,
+        )
     config = ExperimentConfig(
         name=name,
         dataset_path=str(dataset),

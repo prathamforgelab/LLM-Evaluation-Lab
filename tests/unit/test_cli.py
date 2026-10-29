@@ -20,6 +20,7 @@ import pytest
 from typer.testing import CliRunner
 
 from llm_eval_lab.cli import app
+from llm_eval_lab.config import settings
 from llm_eval_lab.storage import Storage
 
 runner = CliRunner()
@@ -58,7 +59,7 @@ def test_cli_validate_missing_file(tmp_path: Path):
 
 def test_cli_run_mock(sample_dataset: Path, tmp_path: Path, monkeypatch):
     db_path = tmp_path / "cli_test.db"
-    monkeypatch.setattr("llm_eval_lab.storage.settings.db_path", db_path)
+    monkeypatch.setattr(settings, "db_path", db_path)
     monkeypatch.setattr("llm_eval_lab.storage._storage", None)
 
     result = runner.invoke(
@@ -76,12 +77,12 @@ def test_cli_run_mock(sample_dataset: Path, tmp_path: Path, monkeypatch):
     )
     assert result.exit_code == 0
     assert "CLI Mock Run" in result.stdout
-    assert "Experiment complete" in result.stdout
+    assert "Status: completed" in result.stdout
 
 
 def test_cli_experiments_list(sample_dataset: Path, tmp_path: Path, monkeypatch):
     db_path = tmp_path / "cli_test.db"
-    monkeypatch.setattr("llm_eval_lab.storage.settings.db_path", db_path)
+    monkeypatch.setattr(settings, "db_path", db_path)
     monkeypatch.setattr("llm_eval_lab.storage._storage", None)
 
     # First run an experiment

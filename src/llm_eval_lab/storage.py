@@ -159,7 +159,7 @@ class Storage:
 
     def load_experiment(self, experiment_id: str) -> Experiment | None:
         """Load an experiment and its results from storage."""
-        with self._connect() as conn:
+        with self._read_conn() as conn:
             row = conn.execute(
                 "SELECT * FROM experiments WHERE id = ?", (experiment_id,)
             ).fetchone()
@@ -191,7 +191,7 @@ class Storage:
 
     def list_experiments(self, limit: int = 50) -> list[dict]:
         """Return summary rows for recent experiments."""
-        with self._connect() as conn:
+        with self._read_conn() as conn:
             rows = conn.execute(
                 """
                 SELECT id, name, status, started_at, completed_at, error
@@ -231,7 +231,7 @@ class Storage:
             )
 
     def load_comparison(self, comparison_id: str) -> ComparisonReport | None:
-        with self._connect() as conn:
+        with self._read_conn() as conn:
             row = conn.execute(
                 "SELECT report_json FROM comparisons WHERE id = ?", (comparison_id,)
             ).fetchone()
@@ -240,7 +240,7 @@ class Storage:
             return ComparisonReport.model_validate_json(row["report_json"])
 
     def list_comparisons(self, limit: int = 20) -> list[dict]:
-        with self._connect() as conn:
+        with self._read_conn() as conn:
             rows = conn.execute(
                 """
                 SELECT id, baseline_id, candidate_id, created_at

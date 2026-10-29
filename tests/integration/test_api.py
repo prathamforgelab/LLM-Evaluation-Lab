@@ -20,13 +20,14 @@ import pytest
 from fastapi.testclient import TestClient
 
 from llm_eval_lab.api.main import create_app
+from llm_eval_lab.config import settings
 from llm_eval_lab.storage import Storage
 
 
 @pytest.fixture
 def client(tmp_path: Path, monkeypatch):
     db_path = tmp_path / "api_test.db"
-    monkeypatch.setattr("llm_eval_lab.storage.settings.db_path", db_path)
+    monkeypatch.setattr(settings, "db_path", db_path)
     monkeypatch.setattr("llm_eval_lab.storage._storage", None)
 
     app = create_app()
@@ -138,4 +139,4 @@ def test_experiment_lifecycle_and_reports(client: TestClient, sample_dataset_pat
     # 8. Delete experiment
     del_res = client.delete(f"/api/experiments/{exp1_id}")
     assert del_res.status_code == 200
-    assert del_res.json()["deleted"] is True
+    assert del_res.json()["deleted"] == exp1_id

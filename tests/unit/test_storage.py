@@ -64,9 +64,7 @@ def _make_experiment(exp_id: str = "exp-001", name: str = "Test Run") -> Experim
         total_cases=2,
         successful_cases=2,
         failed_cases=0,
-        mean_scores={"exact_match": 0.5},
-        p50_scores={"exact_match": 0.5},
-        p95_scores={"exact_match": 0.95},
+        aggregate_metrics={"exact_match": 0.5},
         mean_latency_ms=47.5,
     )
     return Experiment(
@@ -91,7 +89,7 @@ def test_save_and_load_experiment(storage: Storage):
     assert loaded.results[0].case_id == "case-1"
     assert loaded.results[0].metrics[0].score == 1.0
     assert loaded.summary is not None
-    assert loaded.summary.mean_scores["exact_match"] == 0.5
+    assert loaded.summary.aggregate_metrics["exact_match"] == 0.5
 
 
 def test_load_nonexistent_experiment(storage: Storage):
@@ -123,7 +121,7 @@ def test_delete_experiment(storage: Storage):
     assert storage.load_experiment("exp-001") is None
 
     # Check cascading delete in results table
-    with storage._connect() as conn:
+    with storage._read_conn() as conn:
         count = conn.execute("SELECT COUNT(*) FROM results WHERE experiment_id = ?", ("exp-001",)).fetchone()[0]
         assert count == 0
 
