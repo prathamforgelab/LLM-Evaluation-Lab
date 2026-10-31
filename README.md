@@ -169,7 +169,9 @@ report = compare_experiments(baseline, candidate, bootstrap_n=2000, confidence_l
 
 print(f"Overall Decision: {report.overall_decision.value}")
 for m in report.metric_comparisons:
-    print(f"{m.metric_name}: Diff={m.absolute_change:+.4f}, CI=[{m.ci.lower:.4f}, {m.ci.upper:.4f}] -> {m.decision.value}")
+    print(
+        f"{m.metric_name}: Diff={m.absolute_change:+.4f}, CI=[{m.ci.lower:.4f}, {m.ci.upper:.4f}] -> {m.decision.value}"
+    )
 ```
 
 ---

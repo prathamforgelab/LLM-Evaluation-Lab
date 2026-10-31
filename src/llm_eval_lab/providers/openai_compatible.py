@@ -85,7 +85,7 @@ class OpenAICompatibleProvider(BaseProvider):
                 latency_ms = (time.perf_counter() - start) * 1000.0
 
                 if resp.status_code == 429:
-                    wait = 2 ** attempt
+                    wait = 2**attempt
                     logger.warning("Rate limited (429). Waiting %ds before retry.", wait)
                     time.sleep(wait)
                     last_error = "Rate limit exceeded."

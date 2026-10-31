@@ -95,8 +95,7 @@ class SemanticSimilarityEvaluator(BaseEvaluator):
                     "threshold": self._threshold,
                     "similarity": round(similarity, 6),
                     "note": (
-                        "Semantic similarity measures embedding distance, "
-                        "not factual correctness."
+                        "Semantic similarity measures embedding distance, not factual correctness."
                     ),
                 },
                 direction=self.direction,

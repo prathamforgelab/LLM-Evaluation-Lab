@@ -38,12 +38,9 @@ _FIXTURES: dict[str, str] = {
         "learn from data and improve over time without being explicitly programmed."
     ),
     "hallucination": (
-        "I do not have reliable information about that topic. "
-        "Please consult a verified source."
+        "I do not have reliable information about that topic. Please consult a verified source."
     ),
-    "unsupported": (
-        "I'm sorry, I cannot assist with that request."
-    ),
+    "unsupported": ("I'm sorry, I cannot assist with that request."),
     "format": "**Title**\n\n- Item 1\n- Item 2\n- Item 3",
     "difficult": (
         "This is a nuanced question. Multiple perspectives exist, and the answer "
@@ -53,8 +50,7 @@ _FIXTURES: dict[str, str] = {
 }
 
 _DEFAULT_RESPONSE = (
-    "[SIMULATED] This is a deterministic mock response. "
-    "No actual language model was queried."
+    "[SIMULATED] This is a deterministic mock response. No actual language model was queried."
 )
 
 

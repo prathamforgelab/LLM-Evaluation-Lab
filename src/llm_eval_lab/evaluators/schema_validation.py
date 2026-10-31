@@ -70,9 +70,7 @@ class JSONSchemaEvaluator(BaseEvaluator):
         if response.error:
             return self._unavailable("Model request failed.")
         if not case.expected_json_schema:
-            return self._unavailable(
-                "No expected_json_schema defined for this test case."
-            )
+            return self._unavailable("No expected_json_schema defined for this test case.")
 
         # Parse JSON
         try:
@@ -91,8 +89,7 @@ class JSONSchemaEvaluator(BaseEvaluator):
             import jsonschema  # optional dependency
         except ImportError:
             return self._unavailable(
-                "jsonschema package is not installed. "
-                "Install it with: pip install jsonschema"
+                "jsonschema package is not installed. Install it with: pip install jsonschema"
             )
 
         try:

@@ -136,8 +136,7 @@ def bootstrap_mean_diff_ci(
 
     if len(base_arr) < _MIN_SAMPLES_WARN:
         logger.warning(
-            "Bootstrap CI computed with only %d paired samples. "
-            "Interpret with caution.",
+            "Bootstrap CI computed with only %d paired samples. Interpret with caution.",
             n,
         )
 

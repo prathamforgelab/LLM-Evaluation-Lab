@@ -28,9 +28,13 @@ async def create_comparison(req: CompareRequest):
     candidate = storage.load_experiment(req.candidate_id)
 
     if baseline is None:
-        raise HTTPException(status_code=404, detail=f"Baseline experiment not found: {req.baseline_id}")
+        raise HTTPException(
+            status_code=404, detail=f"Baseline experiment not found: {req.baseline_id}"
+        )
     if candidate is None:
-        raise HTTPException(status_code=404, detail=f"Candidate experiment not found: {req.candidate_id}")
+        raise HTTPException(
+            status_code=404, detail=f"Candidate experiment not found: {req.candidate_id}"
+        )
 
     report = compare_experiments(
         baseline,

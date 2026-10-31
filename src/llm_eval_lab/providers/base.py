@@ -58,6 +58,4 @@ def get_provider(config: ProviderConfig) -> BaseProvider:
         from llm_eval_lab.providers.openai_compatible import OpenAICompatibleProvider
 
         return OpenAICompatibleProvider(config)
-    raise ValueError(
-        f"Unknown provider '{config.name}'. Supported: 'mock', 'openai_compatible'."
-    )
+    raise ValueError(f"Unknown provider '{config.name}'. Supported: 'mock', 'openai_compatible'.")
