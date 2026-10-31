@@ -26,10 +26,8 @@ from __future__ import annotations
 
 import hashlib
 import logging
-import time
 from collections.abc import Callable
-from datetime import datetime, timezone
-from typing import Any
+from datetime import UTC, datetime
 
 from jinja2 import Environment, StrictUndefined, UndefinedError
 
@@ -63,6 +61,7 @@ _jinja_env = Environment(undefined=StrictUndefined, autoescape=False)
 
 # ── Prompt rendering ──────────────────────────────────────────────────────────
 
+
 def render_prompt(template: PromptTemplate, case: TestCase) -> str:
     """Render the user prompt template with test-case variables.
 
@@ -90,6 +89,7 @@ def compute_template_hash(template: PromptTemplate) -> str:
 
 
 # ── Evaluator factory ─────────────────────────────────────────────────────────
+
 
 def build_evaluators(config: ExperimentConfig) -> list[BaseEvaluator]:
     """Instantiate evaluators according to the experiment configuration."""
@@ -207,7 +207,7 @@ def run_experiment(
     experiment = Experiment(
         config=config,
         status=ExperimentStatus.RUNNING,
-        started_at=datetime.now(timezone.utc),
+        started_at=datetime.now(UTC),
     )
 
     # Hash the prompt template for reproducibility
@@ -219,7 +219,7 @@ def run_experiment(
     except DatasetParseError as exc:
         experiment.status = ExperimentStatus.FAILED
         experiment.error = str(exc)
-        experiment.completed_at = datetime.now(timezone.utc)
+        experiment.completed_at = datetime.now(UTC)
         return experiment
 
     if not parse_result.cases:
@@ -227,7 +227,7 @@ def run_experiment(
         experiment.error = "Dataset contains no valid test cases."
         if parse_result.errors:
             experiment.error += f" Parse errors: {'; '.join(parse_result.errors[:5])}"
-        experiment.completed_at = datetime.now(timezone.utc)
+        experiment.completed_at = datetime.now(UTC)
         return experiment
 
     if parse_result.errors:
@@ -244,7 +244,7 @@ def run_experiment(
     except Exception as exc:
         experiment.status = ExperimentStatus.FAILED
         experiment.error = f"Configuration error: {exc}"
-        experiment.completed_at = datetime.now(timezone.utc)
+        experiment.completed_at = datetime.now(UTC)
         return experiment
 
     cases = parse_result.cases
@@ -260,7 +260,7 @@ def run_experiment(
     experiment.results = results
     experiment.summary = build_summary(results, config)
     experiment.status = ExperimentStatus.COMPLETED
-    experiment.completed_at = datetime.now(timezone.utc)
+    experiment.completed_at = datetime.now(UTC)
 
     logger.info(
         "Experiment '%s' completed: %d/%d successful.",

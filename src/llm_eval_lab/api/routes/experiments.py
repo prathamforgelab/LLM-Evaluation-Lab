@@ -7,6 +7,7 @@ from pathlib import Path
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 from pydantic import BaseModel
 
+from llm_eval_lab.config import settings
 from llm_eval_lab.runner import run_experiment
 from llm_eval_lab.schemas import (
     EvaluatorConfig,
@@ -31,13 +32,44 @@ class RunExperimentRequest(BaseModel):
     json_validity: bool = False
 
 
+def _validate_dataset_path(raw_path: str) -> Path:
+    """Resolve and validate that a dataset path is contained within data_dir.
+
+    Raises HTTPException(400) for paths outside the allowed directory or that
+    do not exist.  Protects against path traversal (``../``) and symlink
+    escapes by comparing canonical resolved paths.
+    """
+    allowed_dir = settings.data_dir.resolve()
+
+    try:
+        requested = Path(raw_path).resolve()
+    except (OSError, ValueError) as exc:
+        raise HTTPException(status_code=400, detail="Invalid dataset path.") from exc
+
+    # Containment check: resolved path must be inside data_dir
+    try:
+        requested.relative_to(allowed_dir)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "Dataset path is outside the allowed data directory. "
+                "Place dataset files inside the configured data directory."
+            ),
+        ) from exc
+
+    if not requested.exists():
+        raise HTTPException(status_code=400, detail="Dataset not found.")
+    if not requested.is_file():
+        raise HTTPException(status_code=400, detail="Dataset path is not a file.")
+
+    return requested
+
+
 @router.post("/")
 async def create_experiment(req: RunExperimentRequest, background_tasks: BackgroundTasks):
     """Create and run an experiment (runs synchronously for now)."""
-    # Validate dataset path — only allow relative paths inside data_dir
-    dataset_path = Path(req.dataset_path)
-    if not dataset_path.exists():
-        raise HTTPException(status_code=400, detail=f"Dataset not found: {req.dataset_path}")
+    dataset_path = _validate_dataset_path(req.dataset_path)
 
     config = ExperimentConfig(
         name=req.name,

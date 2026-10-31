@@ -15,8 +15,8 @@ from llm_eval_lab.statistics import (
     safe_relative_change,
 )
 
-
 # ── paired_scores ─────────────────────────────────────────────────────────────
+
 
 class TestPairedScores:
     def test_identical_keys(self):
@@ -63,6 +63,7 @@ class TestPairedScores:
 
 
 # ── bootstrap_mean_diff_ci ────────────────────────────────────────────────────
+
 
 class TestBootstrapCI:
     def _arr(self, values):
@@ -125,6 +126,7 @@ class TestBootstrapCI:
 
 
 # ── safe_relative_change ──────────────────────────────────────────────────────
+
 
 class TestRelativeChange:
     def test_positive_baseline(self):

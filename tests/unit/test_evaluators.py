@@ -7,8 +7,6 @@ latency metric, and edge cases (empty strings, errors, missing references).
 
 from __future__ import annotations
 
-import pytest
-
 from llm_eval_lab.evaluators.deterministic import (
     ExactMatchEvaluator,
     KeywordCoverageEvaluator,
@@ -37,6 +35,7 @@ def _response(text: str = "expected answer", error: str | None = None) -> ModelR
 
 
 # ── ExactMatchEvaluator ───────────────────────────────────────────────────────
+
 
 class TestExactMatch:
     ev = ExactMatchEvaluator()
@@ -68,6 +67,7 @@ class TestExactMatch:
 
 # ── NormalizedExactMatchEvaluator ─────────────────────────────────────────────
 
+
 class TestNormalizedExactMatch:
     ev = NormalizedExactMatchEvaluator()
 
@@ -98,6 +98,7 @@ class TestNormalizedExactMatch:
 
 
 # ── TokenOverlapF1Evaluator ───────────────────────────────────────────────────
+
 
 class TestTokenOverlapF1:
     ev = TokenOverlapF1Evaluator()
@@ -145,6 +146,7 @@ class TestTokenOverlapF1:
 
 # ── KeywordCoverageEvaluator ──────────────────────────────────────────────────
 
+
 class TestKeywordCoverage:
     ev = KeywordCoverageEvaluator()
 
@@ -185,6 +187,7 @@ class TestKeywordCoverage:
 
 
 # ── LatencyEvaluator ──────────────────────────────────────────────────────────
+
 
 class TestLatencyEvaluator:
     ev = LatencyEvaluator()

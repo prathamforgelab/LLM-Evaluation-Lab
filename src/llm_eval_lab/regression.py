@@ -115,9 +115,7 @@ def classify_decision(
     if direction == MetricDirection.LOWER_IS_BETTER:
         # Flip the sign convention: positive CI is bad for lower-is-better
         ci_lower, ci_upper = -ci_upper, -ci_lower
-        notes.append(
-            "Direction is lower-is-better; CI has been sign-flipped for decision logic."
-        )
+        notes.append("Direction is lower-is-better; CI has been sign-flipped for decision logic.")
 
     threshold = abs(practical_significance)
 
@@ -261,16 +259,14 @@ def compare_experiments(
     report.metric_comparisons = metric_comparisons
 
     # Overall decision: any regression → REGRESSED; all insufficient → INSUFFICIENT_DATA
-    decisions = [mc.decision for mc in metric_comparisons]
     quality_metrics = [
-        mc for mc in metric_comparisons
+        mc
+        for mc in metric_comparisons
         if mc.metric_name not in ("latency_ms",)  # latency is informational
     ]
     q_decisions = [mc.decision for mc in quality_metrics]
 
-    if not q_decisions:
-        report.overall_decision = RegressionDecision.INSUFFICIENT_DATA
-    elif all(d == RegressionDecision.INSUFFICIENT_DATA for d in q_decisions):
+    if not q_decisions or all(d == RegressionDecision.INSUFFICIENT_DATA for d in q_decisions):
         report.overall_decision = RegressionDecision.INSUFFICIENT_DATA
     elif any(d == RegressionDecision.REGRESSED for d in q_decisions):
         report.overall_decision = RegressionDecision.REGRESSED

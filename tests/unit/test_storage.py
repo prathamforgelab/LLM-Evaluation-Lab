@@ -11,7 +11,7 @@ Covers:
 from __future__ import annotations
 
 import tempfile
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -19,14 +19,13 @@ import pytest
 from llm_eval_lab.schemas import (
     CaseResult,
     ComparisonReport,
+    ConfidenceInterval,
     Experiment,
     ExperimentConfig,
     ExperimentStatus,
     ExperimentSummary,
-    ConfidenceInterval,
     MetricComparison,
     MetricResult,
-    ModelResponse,
     RegressionDecision,
 )
 from llm_eval_lab.storage import Storage
@@ -70,8 +69,8 @@ def _make_experiment(exp_id: str = "exp-001", name: str = "Test Run") -> Experim
     return Experiment(
         config=config,
         status=ExperimentStatus.COMPLETED,
-        started_at=datetime.now(timezone.utc),
-        completed_at=datetime.now(timezone.utc),
+        started_at=datetime.now(UTC),
+        completed_at=datetime.now(UTC),
         results=[res1, res2],
         summary=summary,
     )
@@ -122,7 +121,9 @@ def test_delete_experiment(storage: Storage):
 
     # Check cascading delete in results table
     with storage._read_conn() as conn:
-        count = conn.execute("SELECT COUNT(*) FROM results WHERE experiment_id = ?", ("exp-001",)).fetchone()[0]
+        count = conn.execute(
+            "SELECT COUNT(*) FROM results WHERE experiment_id = ?", ("exp-001",)
+        ).fetchone()[0]
         assert count == 0
 
     # Deleting again returns False

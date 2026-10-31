@@ -4,8 +4,6 @@ Unit tests for JSON validity and schema evaluators.
 
 from __future__ import annotations
 
-import pytest
-
 from llm_eval_lab.evaluators.schema_validation import JSONSchemaEvaluator, JSONValidityEvaluator
 from llm_eval_lab.schemas import ModelResponse, TestCase
 
@@ -27,7 +25,7 @@ class TestJSONValidity:
         assert r.passed is True
 
     def test_valid_array(self):
-        r = self.ev.evaluate(_case(), _resp('[1, 2, 3]'))
+        r = self.ev.evaluate(_case(), _resp("[1, 2, 3]"))
         assert r.score == 1.0
 
     def test_valid_string(self):

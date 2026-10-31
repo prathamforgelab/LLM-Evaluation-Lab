@@ -11,9 +11,6 @@ quality metrics to keep the distinction explicit.
 
 from __future__ import annotations
 
-import math
-from typing import Sequence
-
 import numpy as np
 
 from llm_eval_lab.schemas import (
@@ -100,10 +97,7 @@ def estimate_cost(
         return None
     prompt_tokens = usage.prompt_tokens or 0
     completion_tokens = usage.completion_tokens or 0
-    return (
-        prompt_tokens * cost_per_prompt_token
-        + completion_tokens * cost_per_completion_token
-    )
+    return prompt_tokens * cost_per_prompt_token + completion_tokens * cost_per_completion_token
 
 
 def build_summary(

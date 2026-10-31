@@ -8,7 +8,7 @@ from pathlib import Path
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 from llm_eval_lab.runner import run_experiment
-from llm_eval_lab.schemas import EvaluatorConfig, ExperimentConfig, ProviderConfig, PromptTemplate
+from llm_eval_lab.schemas import EvaluatorConfig, ExperimentConfig, PromptTemplate, ProviderConfig
 from llm_eval_lab.storage import get_storage
 
 

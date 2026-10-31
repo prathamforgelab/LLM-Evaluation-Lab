@@ -14,11 +14,8 @@ llm-eval serve                       Start the FastAPI server.
 
 from __future__ import annotations
 
-import json
 import logging
-import sys
 from pathlib import Path
-from typing import Optional
 
 import typer
 from rich.console import Console
@@ -27,7 +24,7 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
 from llm_eval_lab.config import settings
-from llm_eval_lab.dataset import load_dataset, validate_dataset
+from llm_eval_lab.dataset import load_dataset
 from llm_eval_lab.regression import compare_experiments
 from llm_eval_lab.reporting import (
     comparison_to_json,
@@ -41,7 +38,6 @@ from llm_eval_lab.runner import run_experiment
 from llm_eval_lab.schemas import (
     EvaluatorConfig,
     ExperimentConfig,
-    PromptTemplate,
     ProviderConfig,
     RegressionConfig,
 )
@@ -66,6 +62,7 @@ logging.basicConfig(
 
 # ── validate ──────────────────────────────────────────────────────────────────
 
+
 @app.command()
 def validate(
     dataset: Path = typer.Argument(..., help="Path to the JSONL dataset file."),
@@ -76,7 +73,9 @@ def validate(
         err_console.print(f"[red]File not found:[/red] {dataset}")
         raise typer.Exit(1)
 
-    with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), transient=True) as p:
+    with Progress(
+        SpinnerColumn(), TextColumn("[progress.description]{task.description}"), transient=True
+    ) as p:
         p.add_task("Validating dataset…", total=None)
         result = load_dataset(dataset)
 
@@ -102,19 +101,30 @@ def validate(
 
 # ── run ───────────────────────────────────────────────────────────────────────
 
+
 @app.command()
 def run(
     dataset: Path = typer.Argument(..., help="Path to JSONL dataset."),
-    provider: str = typer.Option("mock", "--provider", "-p", help="Provider name: mock | openai_compatible."),
+    provider: str = typer.Option(
+        "mock", "--provider", "-p", help="Provider name: mock | openai_compatible."
+    ),
     model: str = typer.Option("", "--model", "-m", help="Model identifier (optional for mock)."),
     name: str = typer.Option("experiment", "--name", "-n", help="Human-readable experiment name."),
-    output_dir: Optional[Path] = typer.Option(None, "--output-dir", "-o", help="Directory to write reports."),
-    format: str = typer.Option("markdown", "--format", "-f", help="Report format: markdown | json | csv."),
-    evaluators: Optional[str] = typer.Option(None, "--evaluators", help="Comma-separated evaluator names (e.g. exact_match,token_f1)."),
+    output_dir: Path | None = typer.Option(
+        None, "--output-dir", "-o", help="Directory to write reports."
+    ),
+    format: str = typer.Option(
+        "markdown", "--format", "-f", help="Report format: markdown | json | csv."
+    ),
+    evaluators: str | None = typer.Option(
+        None, "--evaluators", help="Comma-separated evaluator names (e.g. exact_match,token_f1)."
+    ),
     exact_match: bool = typer.Option(True, "--exact-match/--no-exact-match"),
     token_f1: bool = typer.Option(True, "--token-f1/--no-token-f1"),
     json_valid: bool = typer.Option(False, "--json-validity/--no-json-validity"),
-    save: bool = typer.Option(True, "--save/--no-save", help="Persist experiment to local database."),
+    save: bool = typer.Option(
+        True, "--save/--no-save", help="Persist experiment to local database."
+    ),
     verbose: bool = typer.Option(False, "--verbose", "-v"),
 ) -> None:
     """Run an evaluation experiment against a dataset."""
@@ -156,10 +166,16 @@ def run(
             console.print(f"  [{current}/{total}] {case_id}")
 
     console.print(f"[bold]Running experiment[/bold] [cyan]{name}[/cyan] …")
-    console.print(f"  Provider: [cyan]{provider}[/cyan]  Model: [cyan]{model or '(default)'}[/cyan]")
+    console.print(
+        f"  Provider: [cyan]{provider}[/cyan]  Model: [cyan]{model or '(default)'}[/cyan]"
+    )
     console.print(f"  Dataset: [dim]{dataset}[/dim]")
 
-    with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), transient=not verbose) as prog:
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        transient=not verbose,
+    ) as prog:
         task = prog.add_task("Evaluating test cases…", total=None)
         experiment = run_experiment(config, progress_callback=progress_cb)
         prog.update(task, completed=True)
@@ -170,7 +186,9 @@ def run(
         f"\n[{status_color}]Status:[/{status_color}] {experiment.status.value}  "
         f"| Success rate: [bold]{s.success_rate * 100:.1f}%[/bold]  "
         f"| Cases: {s.total_cases}  "
-        f"| Mean latency: {s.mean_latency_ms:.1f}ms" if s.mean_latency_ms else ""
+        f"| Mean latency: {s.mean_latency_ms:.1f}ms"
+        if s.mean_latency_ms
+        else ""
     )
     console.print(f"  Experiment ID: [dim]{experiment.experiment_id}[/dim]")
 
@@ -186,7 +204,7 @@ def run(
     if save:
         storage = get_storage()
         storage.save_experiment(experiment)
-        console.print(f"[dim]Saved to database.[/dim]")
+        console.print("[dim]Saved to database.[/dim]")
 
     # Write report
     if output_dir:
@@ -210,11 +228,12 @@ def run(
 
 # ── compare ───────────────────────────────────────────────────────────────────
 
+
 @app.command()
 def compare(
     baseline: str = typer.Option(..., "--baseline", "-b", help="Baseline experiment ID."),
     candidate: str = typer.Option(..., "--candidate", "-c", help="Candidate experiment ID."),
-    output_dir: Optional[Path] = typer.Option(None, "--output-dir", "-o"),
+    output_dir: Path | None = typer.Option(None, "--output-dir", "-o"),
     format: str = typer.Option("markdown", "--format", "-f", help="markdown | json"),
     bootstrap_n: int = typer.Option(settings.bootstrap_n, "--bootstrap-n"),
     seed: int = typer.Option(settings.bootstrap_seed, "--seed"),
@@ -273,10 +292,7 @@ def compare(
         tbl.add_column(col)
 
     for mc in report.metric_comparisons:
-        ci_str = (
-            f"[{mc.ci.lower:.4f}, {mc.ci.upper:.4f}]"
-            if mc.ci else "N/A"
-        )
+        ci_str = f"[{mc.ci.lower:.4f}, {mc.ci.upper:.4f}]" if mc.ci else "N/A"
         d_color = decision_colors.get(mc.decision.value, "white")
         tbl.add_row(
             mc.metric_name,
@@ -309,11 +325,12 @@ def compare(
 
 # ── report ────────────────────────────────────────────────────────────────────
 
+
 @app.command()
 def report(
     experiment_id: str = typer.Option(..., "--experiment", "-e", help="Experiment ID."),
     format: str = typer.Option("markdown", "--format", "-f", help="markdown | json | csv"),
-    output: Optional[Path] = typer.Option(None, "--output", "-o", help="Output file path."),
+    output: Path | None = typer.Option(None, "--output", "-o", help="Output file path."),
 ) -> None:
     """Generate a report for a stored experiment."""
     storage = get_storage()
@@ -342,6 +359,7 @@ def report(
 
 
 # ── experiments subcommand ────────────────────────────────────────────────────
+
 
 @experiments_app.command("list")
 def experiments_list(
@@ -390,6 +408,7 @@ def experiments_delete(
 
 # ── serve ─────────────────────────────────────────────────────────────────────
 
+
 @app.command()
 def serve(
     host: str = typer.Option(settings.api_host, "--host"),
@@ -399,14 +418,12 @@ def serve(
     """Start the LLM Evaluation Lab web server."""
     try:
         import uvicorn
-        from llm_eval_lab.api.main import create_app
     except ImportError as exc:
         err_console.print(f"[red]Cannot start server:[/red] {exc}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from exc
 
     console.print(
-        f"[bold green]Starting LLM Evaluation Lab[/bold green] at "
-        f"[cyan]http://{host}:{port}[/cyan]"
+        f"[bold green]Starting LLM Evaluation Lab[/bold green] at [cyan]http://{host}:{port}[/cyan]"
     )
     uvicorn.run(
         "llm_eval_lab.api.main:create_app",

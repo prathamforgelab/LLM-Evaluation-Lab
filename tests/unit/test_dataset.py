@@ -8,7 +8,6 @@ empty input, unicode, size limits, missing fields, line-number reporting.
 from __future__ import annotations
 
 import json
-import textwrap
 from pathlib import Path
 
 import pytest
@@ -25,6 +24,7 @@ def _write_jsonl(tmp_path: Path, lines: list[dict | str]) -> Path:
 
 
 # ── Happy path ────────────────────────────────────────────────────────────────
+
 
 def test_load_valid_dataset(tmp_path):
     cases = [
@@ -73,6 +73,7 @@ def test_utf8_unicode(tmp_path):
 
 # ── Error cases ───────────────────────────────────────────────────────────────
 
+
 def test_invalid_json_line_reports_line_number(tmp_path):
     p = tmp_path / "bad.jsonl"
     p.write_text('{"id":"ok","input":"fine"}\nnot valid json\n{"id":"ok2","input":"also fine"}\n')
@@ -110,10 +111,13 @@ def test_empty_input_rejected(tmp_path):
 
 
 def test_duplicate_ids_flagged(tmp_path):
-    p = _write_jsonl(tmp_path, [
-        {"id": "dup", "input": "first"},
-        {"id": "dup", "input": "second"},
-    ])
+    p = _write_jsonl(
+        tmp_path,
+        [
+            {"id": "dup", "input": "first"},
+            {"id": "dup", "input": "second"},
+        ],
+    )
     result = load_dataset(p)
     assert len(result.cases) == 1
     assert any("Duplicate" in e for e in result.errors)
@@ -141,6 +145,7 @@ def test_empty_file(tmp_path):
 
 
 # ── validate_dataset wrapper ──────────────────────────────────────────────────
+
 
 def test_validate_dataset_returns_true_for_valid(tmp_path):
     p = _write_jsonl(tmp_path, [{"id": "v1", "input": "hello"}])

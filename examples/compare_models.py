@@ -7,10 +7,10 @@ from pathlib import Path
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
-from llm_eval_lab.runner import run_experiment
 from llm_eval_lab.regression import compare_experiments
 from llm_eval_lab.reporting import comparison_to_markdown
-from llm_eval_lab.schemas import EvaluatorConfig, ExperimentConfig, ProviderConfig, PromptTemplate
+from llm_eval_lab.runner import run_experiment
+from llm_eval_lab.schemas import EvaluatorConfig, ExperimentConfig, PromptTemplate, ProviderConfig
 
 
 def main():
@@ -55,7 +55,9 @@ def main():
         print(f"\nMetric: {m.metric_name}")
         print(f"  Baseline Mean:  {m.baseline_mean:.4f}")
         print(f"  Candidate Mean: {m.candidate_mean:.4f}")
-        rel_str = f" ({m.relative_change_pct:+.2f}%)" if m.relative_change_pct is not None else " (N/A)"
+        rel_str = (
+            f" ({m.relative_change_pct:+.2f}%)" if m.relative_change_pct is not None else " (N/A)"
+        )
         print(f"  Observed Diff:  {m.absolute_change:+.4f}{rel_str}")
         if m.ci:
             print(f"  95% CI:         [{m.ci.lower:.4f}, {m.ci.upper:.4f}]")

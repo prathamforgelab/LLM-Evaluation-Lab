@@ -13,7 +13,6 @@ Covers:
 from __future__ import annotations
 
 import json
-import tempfile
 from pathlib import Path
 
 import pytest
@@ -21,7 +20,6 @@ from typer.testing import CliRunner
 
 from llm_eval_lab.cli import app
 from llm_eval_lab.config import settings
-from llm_eval_lab.storage import Storage
 
 runner = CliRunner()
 
@@ -29,7 +27,12 @@ runner = CliRunner()
 @pytest.fixture
 def sample_dataset(tmp_path: Path) -> Path:
     data = [
-        {"id": "q1", "input": "What is Python?", "reference": "A programming language.", "context": "Python is a language."},
+        {
+            "id": "q1",
+            "input": "What is Python?",
+            "reference": "A programming language.",
+            "context": "Python is a language.",
+        },
         {"id": "q2", "input": "What is 2+2?", "reference": "4", "context": "Math facts."},
     ]
     file_path = tmp_path / "test.jsonl"

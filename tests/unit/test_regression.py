@@ -7,7 +7,6 @@ zero baseline, insufficient data, missing cases, and boundary conditions.
 
 from __future__ import annotations
 
-import numpy as np
 import pytest
 
 from llm_eval_lab.regression import classify_decision, compare_experiments
@@ -24,8 +23,8 @@ from llm_eval_lab.schemas import (
     RegressionThreshold,
 )
 
-
 # ── classify_decision ─────────────────────────────────────────────────────────
+
 
 class TestClassifyDecision:
     def _call(self, lo, hi, ps=0.0, direction=MetricDirection.HIGHER_IS_BETTER, n=10, min_n=5):
@@ -76,6 +75,7 @@ class TestClassifyDecision:
 
 # ── compare_experiments ───────────────────────────────────────────────────────
 
+
 def _make_experiment(
     case_scores: dict[str, float | None],
     metric_name: str = "exact_match",
@@ -89,11 +89,13 @@ def _make_experiment(
             score=score,
             direction=direction,
         )
-        results.append(CaseResult(
-            case_id=cid,
-            input=f"input {cid}",
-            metrics=[mr],
-        ))
+        results.append(
+            CaseResult(
+                case_id=cid,
+                input=f"input {cid}",
+                metrics=[mr],
+            )
+        )
 
     config = ExperimentConfig(
         provider=ProviderConfig(name="mock"),
@@ -142,7 +144,10 @@ class TestCompareExperiments:
         base = _make_experiment(_scores(2, 0.5))
         cand = _make_experiment(_scores(2, 0.8))
         report = compare_experiments(
-            base, cand, bootstrap_n=100, bootstrap_seed=42,
+            base,
+            cand,
+            bootstrap_n=100,
+            bootstrap_seed=42,
         )
         mc = next(m for m in report.metric_comparisons if m.metric_name == "exact_match")
         assert mc.decision == RegressionDecision.INSUFFICIENT_DATA
@@ -200,6 +205,8 @@ class TestCompareExperiments:
         cfg = RegressionConfig(
             thresholds=[RegressionThreshold(metric_name="exact_match", practical_significance=0.3)]
         )
-        report = compare_experiments(base, cand, regression_config=cfg, bootstrap_n=500, bootstrap_seed=42)
+        report = compare_experiments(
+            base, cand, regression_config=cfg, bootstrap_n=500, bootstrap_seed=42
+        )
         mc = next(m for m in report.metric_comparisons if m.metric_name == "exact_match")
         assert mc.decision == RegressionDecision.INCONCLUSIVE

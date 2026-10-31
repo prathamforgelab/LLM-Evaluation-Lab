@@ -13,8 +13,8 @@ Design decisions
 from __future__ import annotations
 
 import json
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Iterator
 
 from pydantic import ValidationError
 
@@ -106,25 +106,20 @@ def load_dataset(path: str | Path, max_cases: int | None = None) -> ParseResult:
             case = TestCase.model_validate(raw)
         except ValidationError as exc:
             msgs = "; ".join(
-                f"{'.'.join(str(loc) for loc in e['loc'])}: {e['msg']}"
-                for e in exc.errors()
+                f"{'.'.join(str(loc) for loc in e['loc'])}: {e['msg']}" for e in exc.errors()
             )
             result.errors.append(f"Line {lineno}: Validation error — {msgs}")
             continue
 
         if case.id in seen_ids:
-            result.errors.append(
-                f"Line {lineno}: Duplicate test-case id '{case.id}' — skipping."
-            )
+            result.errors.append(f"Line {lineno}: Duplicate test-case id '{case.id}' — skipping.")
             continue
 
         seen_ids.add(case.id)
         result.cases.append(case)
 
         if len(result.cases) >= max_cases:
-            result.errors.append(
-                f"Dataset truncated: max_cases limit of {max_cases} reached."
-            )
+            result.errors.append(f"Dataset truncated: max_cases limit of {max_cases} reached.")
             break
 
     return result

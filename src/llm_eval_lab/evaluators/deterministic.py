@@ -153,16 +153,17 @@ class TokenOverlapF1Evaluator(BaseEvaluator):
         precision = n_common / sum(pred_set.values())
         recall = n_common / sum(ref_set.values())
 
-        if precision + recall == 0:
-            f1 = 0.0
-        else:
-            f1 = 2 * precision * recall / (precision + recall)
+        f1 = 0.0 if precision + recall == 0 else 2 * precision * recall / (precision + recall)
 
         return MetricResult(
             metric_name=self.metric_name,
             score=round(f1, 6),
             passed=f1 > 0,
-            details={"precision": round(precision, 6), "recall": round(recall, 6), "f1": round(f1, 6)},
+            details={
+                "precision": round(precision, 6),
+                "recall": round(recall, 6),
+                "f1": round(f1, 6),
+            },
             direction=self.direction,
         )
 

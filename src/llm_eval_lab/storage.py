@@ -19,13 +19,12 @@ The database file is at:            $LLM_EVAL_DATA_DIR/eval_lab.db
 
 from __future__ import annotations
 
-import json
 import logging
 import sqlite3
+from collections.abc import Generator
 from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
-from typing import Generator
 
 from llm_eval_lab.config import settings
 from llm_eval_lab.schemas import (
@@ -155,7 +154,9 @@ class Storage:
                         result.model_dump_json(),
                     ),
                 )
-        logger.debug("Saved experiment %s (%d results).", experiment.experiment_id, len(experiment.results))
+        logger.debug(
+            "Saved experiment %s (%d results).", experiment.experiment_id, len(experiment.results)
+        )
 
     def load_experiment(self, experiment_id: str) -> Experiment | None:
         """Load an experiment and its results from storage."""
@@ -206,9 +207,7 @@ class Storage:
     def delete_experiment(self, experiment_id: str) -> bool:
         """Delete an experiment and all its results.  Returns True if found."""
         with self._tx() as conn:
-            cur = conn.execute(
-                "DELETE FROM experiments WHERE id = ?", (experiment_id,)
-            )
+            cur = conn.execute("DELETE FROM experiments WHERE id = ?", (experiment_id,))
             return cur.rowcount > 0
 
     # ── Comparisons ───────────────────────────────────────────────────────────

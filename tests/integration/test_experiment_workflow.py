@@ -7,17 +7,14 @@ Tests run using the offline mock provider only — no network required.
 from __future__ import annotations
 
 import json
-import tempfile
 from pathlib import Path
 
-import pytest
-
-from llm_eval_lab.runner import run_experiment
 from llm_eval_lab.reporting import (
     experiment_to_csv,
     experiment_to_json,
     experiment_to_markdown,
 )
+from llm_eval_lab.runner import run_experiment
 from llm_eval_lab.schemas import (
     EvaluatorConfig,
     ExperimentConfig,
@@ -37,14 +34,21 @@ def _write_dataset(tmp_path: Path, cases: list[dict]) -> Path:
 
 # ── Core integration ──────────────────────────────────────────────────────────
 
+
 class TestCompleteExperiment:
     def test_full_offline_experiment(self, tmp_path):
         """An experiment runs end-to-end with mock provider."""
         cases = [
-            {"id": "f1", "input": "What is the capital of France?",
-             "reference": "The capital of France is Paris."},
-            {"id": "f2", "input": "What is Python?",
-             "reference": "Python is a programming language."},
+            {
+                "id": "f1",
+                "input": "What is the capital of France?",
+                "reference": "The capital of France is Paris.",
+            },
+            {
+                "id": "f2",
+                "input": "What is Python?",
+                "reference": "Python is a programming language.",
+            },
         ]
         dataset = _write_dataset(tmp_path, cases)
         config = ExperimentConfig(
@@ -97,6 +101,7 @@ class TestCompleteExperiment:
 
     def test_progress_callback_called(self, tmp_path):
         calls = []
+
         def cb(current, total, case_id):
             calls.append((current, total, case_id))
 
@@ -127,8 +132,11 @@ class TestCompleteExperiment:
 
     def test_summary_contains_aggregate_metrics(self, tmp_path):
         cases = [
-            {"id": f"c{i}", "input": "What is the capital of France?",
-             "reference": "The capital of France is Paris."}
+            {
+                "id": f"c{i}",
+                "input": "What is the capital of France?",
+                "reference": "The capital of France is Paris.",
+            }
             for i in range(3)
         ]
         dataset = _write_dataset(tmp_path, cases)
@@ -143,6 +151,7 @@ class TestCompleteExperiment:
 
 
 # ── Report generation ─────────────────────────────────────────────────────────
+
 
 class TestReportGeneration:
     def _run_exp(self, tmp_path: Path) -> object:
@@ -181,6 +190,7 @@ class TestReportGeneration:
 
 
 # ── Storage integration ───────────────────────────────────────────────────────
+
 
 class TestStorageIntegration:
     def test_save_and_load_experiment(self, tmp_path):

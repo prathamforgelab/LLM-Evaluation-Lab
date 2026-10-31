@@ -9,17 +9,17 @@ documentation so that serialised records are self-describing.
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from typing import Any
 
-from pydantic import BaseModel, Field, field_validator, model_validator
-
+from pydantic import BaseModel, Field, field_validator
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
+
 def _now() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 def _new_id() -> str:
@@ -27,6 +27,7 @@ def _new_id() -> str:
 
 
 # ── Dataset ───────────────────────────────────────────────────────────────────
+
 
 class TestCase(BaseModel):
     """One evaluation test case read from a JSONL dataset."""
@@ -82,6 +83,7 @@ class DatasetInfo(BaseModel):
 
 # ── Provider / model output ───────────────────────────────────────────────────
 
+
 class TokenUsage(BaseModel):
     """Token counts reported by a provider. All fields are optional because
     not every provider reports every counter."""
@@ -108,7 +110,8 @@ class ModelResponse(BaseModel):
 
 # ── Metric results ────────────────────────────────────────────────────────────
 
-class MetricDirection(str, Enum):
+
+class MetricDirection(StrEnum):
     """Whether a higher or lower score is preferred."""
 
     HIGHER_IS_BETTER = "higher_is_better"
@@ -123,15 +126,14 @@ class MetricResult(BaseModel):
     score: float | None = Field(
         None, description="Numeric score; None if the metric could not be computed."
     )
-    passed: bool | None = Field(
-        None, description="Boolean pass/fail for threshold-based metrics."
-    )
+    passed: bool | None = Field(None, description="Boolean pass/fail for threshold-based metrics.")
     details: dict[str, Any] = Field(default_factory=dict)
     error: str | None = None
     direction: MetricDirection = MetricDirection.HIGHER_IS_BETTER
 
 
 # ── Per-case result ───────────────────────────────────────────────────────────
+
 
 class CaseResult(BaseModel):
     """Evaluation outcome for one test case within an experiment."""
@@ -159,7 +161,8 @@ class CaseResult(BaseModel):
 
 # ── Experiment ────────────────────────────────────────────────────────────────
 
-class ExperimentStatus(str, Enum):
+
+class ExperimentStatus(StrEnum):
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
@@ -264,7 +267,8 @@ class Experiment(BaseModel):
 
 # ── Comparison / Regression ───────────────────────────────────────────────────
 
-class RegressionDecision(str, Enum):
+
+class RegressionDecision(StrEnum):
     IMPROVED = "IMPROVED"
     REGRESSED = "REGRESSED"
     INCONCLUSIVE = "INCONCLUSIVE"
@@ -316,6 +320,7 @@ class ComparisonReport(BaseModel):
 
 
 # ── Regression thresholds ─────────────────────────────────────────────────────
+
 
 class RegressionThreshold(BaseModel):
     """Decision rules for one metric."""

@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import io
 import json
-import tempfile
 from pathlib import Path
 
 import pytest
@@ -21,7 +20,6 @@ from fastapi.testclient import TestClient
 
 from llm_eval_lab.api.main import create_app
 from llm_eval_lab.config import settings
-from llm_eval_lab.storage import Storage
 
 
 @pytest.fixture
@@ -39,7 +37,12 @@ def client(tmp_path: Path, monkeypatch):
 def sample_dataset_path(tmp_path: Path) -> Path:
     data = [
         {"id": "c1", "input": "Hello", "reference": "Hello world", "context": "Greeting"},
-        {"id": "c2", "input": "What is Python?", "reference": "Python is a language", "context": "Code"},
+        {
+            "id": "c2",
+            "input": "What is Python?",
+            "reference": "Python is a language",
+            "context": "Code",
+        },
     ]
     p = tmp_path / "sample.jsonl"
     with open(p, "w", encoding="utf-8") as f:
@@ -125,7 +128,9 @@ def test_experiment_lifecycle_and_reports(client: TestClient, sample_dataset_pat
     exp2_id = create_res2.json()["experiment_id"]
 
     # 6. Compare
-    comp_res = client.post("/api/comparisons/", json={"baseline_id": exp1_id, "candidate_id": exp2_id})
+    comp_res = client.post(
+        "/api/comparisons/", json={"baseline_id": exp1_id, "candidate_id": exp2_id}
+    )
     assert comp_res.status_code == 200
     comp_data = comp_res.json()
     assert "overall_decision" in comp_data

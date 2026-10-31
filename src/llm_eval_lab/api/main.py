@@ -17,10 +17,9 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 
+from llm_eval_lab.api.routes import comparisons, datasets, experiments, reports
 from llm_eval_lab.config import settings
-from llm_eval_lab.api.routes import datasets, experiments, comparisons, reports
 
 logger = logging.getLogger(__name__)
 

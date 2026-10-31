@@ -7,8 +7,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
-
 from llm_eval_lab.regression import compare_experiments
 from llm_eval_lab.reporting import comparison_to_json, comparison_to_markdown
 from llm_eval_lab.runner import run_experiment
@@ -16,8 +14,6 @@ from llm_eval_lab.schemas import (
     EvaluatorConfig,
     ExperimentConfig,
     ProviderConfig,
-    RegressionConfig,
-    RegressionDecision,
 )
 
 
@@ -42,10 +38,7 @@ def _run(tmp_path: Path, cases: list[dict], name: str = "exp") -> object:
 
 class TestComparisonWorkflow:
     def test_comparison_report_generated(self, tmp_path):
-        cases = [
-            {"id": f"c{i}", "input": f"input {i}", "reference": f"ref {i}"}
-            for i in range(10)
-        ]
+        cases = [{"id": f"c{i}", "input": f"input {i}", "reference": f"ref {i}"} for i in range(10)]
         baseline = _run(tmp_path, cases, "baseline")
         candidate = _run(tmp_path, cases, "candidate")
         report = compare_experiments(baseline, candidate, bootstrap_n=100, bootstrap_seed=42)
