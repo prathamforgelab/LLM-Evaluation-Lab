@@ -26,6 +26,7 @@ from llm_eval_lab.config import settings
 def client(tmp_path: Path, monkeypatch):
     db_path = tmp_path / "api_test.db"
     monkeypatch.setattr(settings, "db_path", db_path)
+    monkeypatch.setattr(settings, "data_dir", tmp_path)
     monkeypatch.setattr("llm_eval_lab.storage._storage", None)
 
     app = create_app()
