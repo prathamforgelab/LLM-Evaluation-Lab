@@ -74,9 +74,10 @@ def iter_jsonl(path: Path) -> Iterator[tuple[int, dict]]:
                             if isinstance(parsed, list)
                             else type(parsed).__name__
                         )
-                        yield lineno, {
-                            "__parse_error__": f"Expected a JSON object, got {actual_type}"
-                        }
+                        yield (
+                            lineno,
+                            {"__parse_error__": f"Expected a JSON object, got {actual_type}"},
+                        )
                     else:
                         yield lineno, parsed
 
